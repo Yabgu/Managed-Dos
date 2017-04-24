@@ -133,8 +133,8 @@
 	{ inst(reg_eax,Fetchd(),LoadRd,SaveRd);}
 
 #define FPU_ESC(code) {														\
-	System::Byte rm=Fetchb();														\
-	if (rm >= 0xc0) {															\
+	System::Byte rm=Fetchb();												\
+	if (rm >= 0xc0) {														\
 		FPU_ESC ## code ## _Normal(rm);										\
 	} else {																\
 		GetEAa;FPU_ESC ## code ## _EA(rm,eaa);								\

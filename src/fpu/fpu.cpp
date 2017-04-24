@@ -54,30 +54,31 @@ System::UInt16 FPU_GetTag(void){
 			*/
 
 static void EATREE(unsigned _rm){
-	switch(_rm & 070){
-		case 000:	/* FADD */
+	unsigned group=(_rm >> 3) & 7;
+	switch(group){
+		case 0x00:	/* FADD */
 			FPU_FADD_EA(TOP);
 			break;
-		case 010:	/* FMUL  */
+		case 0x01:	/* FMUL  */
 			FPU_FMUL_EA(TOP);
 			break;
-		case 020:	/* FCOM */
+		case 0x02:	/* FCOM */
 			FPU_FCOM_EA(TOP);
 			break;
-		case 030:	/* FCOMP */
+		case 0x03:	/* FCOMP */
 			FPU_FCOM_EA(TOP);
 			FPU_FPOP();
 			break;
-		case 040:	/* FSUB */
+		case 0x04:	/* FSUB */
 			FPU_FSUB_EA(TOP);
 			break;
-		case 050:	/* FSUBR */
+		case 0x05:	/* FSUBR */
 			FPU_FSUBR_EA(TOP);
 			break;
-		case 060:	/* FDIV */
+		case 0x06:	/* FDIV */
 			FPU_FDIV_EA(TOP);
 			break;
-		case 070:	/* FDIVR */
+		case 0x07:	/* FDIVR */
 			FPU_FDIVR_EA(TOP);
 			break;
 		default:

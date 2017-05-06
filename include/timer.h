@@ -19,20 +19,20 @@
 #ifndef DOSBOX_TIMER_H
 #define DOSBOX_TIMER_H
 
-/* underlying clock rate in HZ */
+ /* underlying clock rate in HZ */
 #include <SDL.h>
 
 #define PIT_TICK_RATE 1193182
 
 #define GetTicks() SDL_GetTicks()
 
-typedef void (*TIMER_TickHandler)(void);
+typedef void(*TIMER_TickHandler)(void);
 
-/* Register a function that gets called everytime if 1 or more ticks pass */
+/* Register a function that gets called every time if 1 or more ticks pass */
 void TIMER_AddTickHandler(TIMER_TickHandler handler);
 void TIMER_DelTickHandler(TIMER_TickHandler handler);
 
-/* This will add 1 milliscond to all timers */
+/* This will add 1 milli scond to all timers */
 void TIMER_AddTick(void);
 
 #endif

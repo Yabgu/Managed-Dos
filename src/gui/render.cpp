@@ -593,7 +593,8 @@ void RENDER_Init(Section * sec) {
 	std::string f = prop->GetSection()->Get_string("force");
 	render.scale.forced = false;
 	if(f == "forced") render.scale.forced = true;
-   
+	render.scale.op = scalerOpNormal; render.scale.size = 1;
+#if 0
 	if (scaler == "none") { render.scale.op = scalerOpNormal;render.scale.size = 1; }
 	else if (scaler == "normal2x") { render.scale.op = scalerOpNormal;render.scale.size = 2; }
 	else if (scaler == "normal3x") { render.scale.op = scalerOpNormal;render.scale.size = 3; }
@@ -615,6 +616,7 @@ void RENDER_Init(Section * sec) {
 	else if (scaler == "rgb3x"){ render.scale.op = scalerOpRGB;render.scale.size = 3; }
 	else if (scaler == "scan2x"){ render.scale.op = scalerOpScan;render.scale.size = 2; }
 	else if (scaler == "scan3x"){ render.scale.op = scalerOpScan;render.scale.size = 3; }
+#endif
 #endif
 
 	//If something changed that needs a ReInit

@@ -1,20 +1,20 @@
- /*
- *  Copyright (C) 2002-2010  The DOSBox Team
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
+/*
+*  Copyright (C) 2002-2010  The DOSBox Team
+*
+*  This program is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
 
 /* $Id: vga.h,v 1.48 2009-11-03 21:06:59 h-a-l-9000 Exp $ */
 
@@ -71,17 +71,17 @@ typedef struct {
 } VGA_Internal;
 
 typedef struct {
-/* Memory handlers */
+	/* Memory handlers */
 	unsigned mh_mask;
 
-/* Video drawing */
+	/* Video drawing */
 	unsigned display_start;
 	unsigned real_start;
 	bool retrace;					/* A retrace is active */
 	unsigned scan_len;
 	unsigned cursor_start;
 
-/* Some other screen related variables */
+	/* Some other screen related variables */
 	unsigned line_compare;
 	bool chained;					/* Enable or Disabled Chain 4 Mode */
 	bool compatible_chain4;
@@ -92,8 +92,8 @@ typedef struct {
 	System::Byte bytes_skip;
 	System::Byte addr_shift;
 
-/* Specific stuff memory write/read handling */
-	
+	/* Specific stuff memory write/read handling */
+
 	System::Byte read_mode;
 	System::Byte write_mode;
 	System::Byte read_map_select;
@@ -153,14 +153,14 @@ typedef struct {
 	unsigned bpp;
 	double aspect_ratio;
 	bool double_scan;
-	bool doublewidth,doubleheight;
-	System::Byte font[64*1024];
+	bool doublewidth, doubleheight;
+	System::Byte font[64 * 1024];
 	System::Byte * font_tables[2];
 	unsigned blinking;
 	struct {
 		unsigned address;
-		System::Byte sline,eline;
-		System::Byte count,delay;
+		System::Byte sline, eline;
+		System::Byte count, delay;
 		System::Byte enabled;
 	} cursor;
 	Drawmode mode;
@@ -206,7 +206,7 @@ typedef struct {
 		System::Byte r;
 		System::Byte n;
 		System::Byte m;
-	} clk[4],mclk;
+	} clk[4], mclk;
 	struct {
 		System::Byte lock;
 		System::Byte cmd;
@@ -322,7 +322,7 @@ typedef struct {
 	System::Byte bit_mask;
 } VGA_Gfx;
 
-typedef struct  {
+typedef struct {
 	System::Byte red;
 	System::Byte green;
 	System::Byte blue;
@@ -331,7 +331,7 @@ typedef struct  {
 typedef struct {
 	System::Byte bits;						/* DAC int, usually 6 or 8 */
 	System::Byte pel_mask;
-	System::Byte pel_index;	
+	System::Byte pel_index;
 	System::Byte state;
 	System::Byte write_index;
 	System::Byte read_index;
@@ -384,7 +384,7 @@ typedef struct {
 	VGA_Draw draw;
 	VGA_Config config;
 	VGA_Internal internal;
-/* Internal module groups */
+	/* Internal module groups */
 	VGA_Seq seq;
 	VGA_Attr attr;
 	VGA_Crtc crtc;
@@ -415,15 +415,15 @@ void Herc_Palette(void);
 void VGA_SetMode(VGAModes mode);
 void VGA_DetermineMode(void);
 void VGA_SetupHandlers(void);
-void VGA_StartResize(unsigned delay=50);
+void VGA_StartResize(unsigned delay = 50);
 void VGA_SetupDrawing(unsigned val);
 void VGA_CheckScanLength(void);
 void VGA_ChangedBank(void);
 
 /* Some DAC/Attribute functions */
-void VGA_DAC_CombineColor(System::Byte attr,System::Byte pal);
-void VGA_DAC_SetEntry(unsigned entry,System::Byte red,System::Byte green,System::Byte blue);
-void VGA_ATTR_SetPalette(System::Byte index,System::Byte val);
+void VGA_DAC_CombineColor(System::Byte attr, System::Byte pal);
+void VGA_DAC_SetEntry(unsigned entry, System::Byte red, System::Byte green, System::Byte blue);
+void VGA_ATTR_SetPalette(System::Byte index, System::Byte val);
 
 /* The VGA Subfunction startups */
 void VGA_SetupAttr(void);
@@ -437,13 +437,13 @@ void VGA_SetupOther(void);
 void VGA_SetupXGA(void);
 
 /* Some Support Functions */
-void VGA_SetClock(unsigned which,unsigned target);
+void VGA_SetClock(unsigned which, unsigned target);
 void VGA_DACSetEntirePalette(void);
 void VGA_StartRetrace(void);
 void VGA_StartUpdateLFB(void);
 void VGA_SetBlinking(unsigned enabled);
-void VGA_SetCGA2Table(System::Byte val0,System::Byte val1);
-void VGA_SetCGA4Table(System::Byte val0,System::Byte val1,System::Byte val2,System::Byte val3);
+void VGA_SetCGA2Table(System::Byte val0, System::Byte val1);
+void VGA_SetCGA4Table(System::Byte val0, System::Byte val1, System::Byte val2, System::Byte val3);
 void VGA_ActivateHardwareCursor(void);
 void VGA_KillDrawing(void);
 
@@ -470,14 +470,14 @@ typedef struct {
 } VGA_ModeExtraData;
 
 // Vector function prototypes
-typedef void (*tWritePort)(unsigned reg,unsigned val,unsigned iolen);
-typedef unsigned (*tReadPort)(unsigned reg,unsigned iolen);
-typedef void (*tFinishSetMode)(unsigned crtc_base, VGA_ModeExtraData* modeData);
-typedef void (*tDetermineMode)();
-typedef void (*tSetClock)(unsigned which,unsigned target);
-typedef unsigned (*tGetClock)();
-typedef bool (*tHWCursorActive)();
-typedef bool (*tAcceptsMode)(unsigned modeNo);
+typedef void(*tWritePort)(unsigned reg, unsigned val, unsigned iolen);
+typedef unsigned(*tReadPort)(unsigned reg, unsigned iolen);
+typedef void(*tFinishSetMode)(unsigned crtc_base, VGA_ModeExtraData* modeData);
+typedef void(*tDetermineMode)();
+typedef void(*tSetClock)(unsigned which, unsigned target);
+typedef unsigned(*tGetClock)();
+typedef bool(*tHWCursorActive)();
+typedef bool(*tAcceptsMode)(unsigned modeNo);
 
 struct SVGA_Driver {
 	tWritePort write_p3d5;
@@ -519,6 +519,5 @@ extern System::UInt32 TXT_FG_Table[16];
 extern System::UInt32 TXT_BG_Table[16];
 extern System::UInt32 Expand16Table[4][16];
 extern System::UInt32 Expand16BigTable[0x10000];
-
 
 #endif

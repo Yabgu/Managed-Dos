@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* $Id: support.cpp,v 1.37 2009-05-27 09:15:42 qbix79 Exp $ */
+ /* $Id: support.cpp,v 1.37 2009-05-27 09:15:42 qbix79 Exp $ */
 
 #include <string.h>
 #include <stdlib.h>
@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
-  
+
 #include "dosbox.h"
 #include "debug.h"
 #include "support.h"
@@ -36,17 +36,17 @@
 
 
 void upcase(std::string &str) {
-	int (*tf)(int) = std::toupper;
+	int(*tf)(int) = std::toupper;
 	std::transform(str.begin(), str.end(), str.begin(), tf);
 }
 
 void lowcase(std::string &str) {
-	int (*tf)(int) = std::tolower;
+	int(*tf)(int) = std::tolower;
 	std::transform(str.begin(), str.end(), str.begin(), tf);
 }
-  
 
-/* 
+
+/*
 	Ripped some source from freedos for this one.
 
 */
@@ -57,13 +57,13 @@ void lowcase(std::string &str) {
  */
 
 
-void strreplace(char * str,char o,char n) {
+void strreplace(char * str, char o, char n) {
 	while (*str) {
-		if (*str==o) *str=n;
+		if (*str == o) *str = n;
 		str++;
 	}
 }
-char *ltrim(char *str) { 
+char *ltrim(char *str) {
 	while (*str && isspace(*reinterpret_cast<unsigned char*>(str))) str++;
 	return str;
 }
@@ -81,26 +81,26 @@ char *trim(char *str) {
 }
 
 char * upcase(char * str) {
-    for (char* idx = str; *idx ; idx++) *idx = toupper(*reinterpret_cast<unsigned char*>(idx));
-    return str;
+	for (char* idx = str; *idx; idx++) *idx = toupper(*reinterpret_cast<unsigned char*>(idx));
+	return str;
 }
 
 char * lowcase(char * str) {
-	for(char* idx = str; *idx ; idx++)  *idx = tolower(*reinterpret_cast<unsigned char*>(idx));
+	for (char* idx = str; *idx; idx++)  *idx = tolower(*reinterpret_cast<unsigned char*>(idx));
 	return str;
 }
 
 
 
-bool ScanCMDBool(char * cmd,char const * const check) {
-	char * scan=cmd;size_t c_len=strlen(check);
-	while ((scan=strchr(scan,'/'))) {
+bool ScanCMDBool(char * cmd, char const * const check) {
+	char * scan = cmd; size_t c_len = strlen(check);
+	while ((scan = strchr(scan, '/'))) {
 		/* found a / now see behind it */
 		scan++;
-		if (strncasecmp(scan,check,c_len)==0 && (scan[c_len]==' ' || scan[c_len]=='\t' || scan[c_len]=='/' || scan[c_len]==0)) {
-		/* Found a math now remove it from the string */
-			memmove(scan-1,scan+c_len,strlen(scan+c_len)+1);
-			trim(scan-1);
+		if (strncasecmp(scan, check, c_len) == 0 && (scan[c_len] == ' ' || scan[c_len] == '\t' || scan[c_len] == '/' || scan[c_len] == 0)) {
+			/* Found a math now remove it from the string */
+			memmove(scan - 1, scan + c_len, strlen(scan + c_len) + 1);
+			trim(scan - 1);
 			return true;
 		}
 	}
@@ -109,57 +109,58 @@ bool ScanCMDBool(char * cmd,char const * const check) {
 
 /* This scans the command line for a remaining switch and reports it else returns 0*/
 char * ScanCMDRemain(char * cmd) {
-	char * scan,*found;;
-	if ((scan=found=strchr(cmd,'/'))) {
-		while ( *scan && !isspace(*reinterpret_cast<unsigned char*>(scan)) ) scan++;
-		*scan=0;
+	char * scan, *found;;
+	if ((scan = found = strchr(cmd, '/'))) {
+		while (*scan && !isspace(*reinterpret_cast<unsigned char*>(scan))) scan++;
+		*scan = 0;
 		return found;
-	} else return 0; 
+	}
+	else return 0;
 }
 
 char * StripWord(char *&line) {
-	char * scan=line;
-	scan=ltrim(scan);
-	if (*scan=='"') {
-		char * end_quote=strchr(scan+1,'"');
+	char * scan = line;
+	scan = ltrim(scan);
+	if (*scan == '"') {
+		char * end_quote = strchr(scan + 1, '"');
 		if (end_quote) {
-			*end_quote=0;
-			line=ltrim(++end_quote);
-			return (scan+1);
+			*end_quote = 0;
+			line = ltrim(++end_quote);
+			return (scan + 1);
 		}
 	}
-	char * begin=scan;
-	for (char c = *scan ;(c = *scan);scan++) {
+	char * begin = scan;
+	for (char c = *scan; (c = *scan); scan++) {
 		if (isspace(*reinterpret_cast<unsigned char*>(&c))) {
-			*scan++=0;
+			*scan++ = 0;
 			break;
 		}
 	}
-	line=scan;
+	line = scan;
 	return begin;
 }
 
 int ConvDecWord(char * word) {
-	bool negative=false;unsigned ret=0;
-	if (*word=='-') {
-		negative=true;
+	bool negative = false; unsigned ret = 0;
+	if (*word == '-') {
+		negative = true;
 		word++;
 	}
-	while (char c=*word) {
-		ret*=10;
-		ret+=c-'0';
+	while (char c = *word) {
+		ret *= 10;
+		ret += c - '0';
 		word++;
 	}
-	if (negative) return 0-ret;
+	if (negative) return 0 - ret;
 	else return ret;
 }
 
 int ConvHexWord(char * word) {
-	unsigned ret=0;
-	while (char c=toupper(*reinterpret_cast<unsigned char*>(word))) {
-		ret*=16;
-		if (c>='0' && c<='9') ret+=c-'0';
-		else if (c>='A' && c<='F') ret+=10+(c-'A');
+	unsigned ret = 0;
+	while (char c = toupper(*reinterpret_cast<unsigned char*>(word))) {
+		ret *= 16;
+		if (c >= '0' && c <= '9') ret += c - '0';
+		else if (c >= 'A' && c <= 'F') ret += 10 + (c - 'A');
 		word++;
 	}
 	return ret;
@@ -171,15 +172,15 @@ double ConvDblWord(char * word) {
 
 
 static char buf[1024];           //greater scope as else it doesn't always gets thrown right (linux/gcc2.95)
-void E_Exit(const char * format,...) {
+void E_Exit(const char * format, ...) {
 #if C_DEBUG && C_HEAVY_DEBUG
- 	DEBUG_HeavyWriteLogInstruction();
+	DEBUG_HeavyWriteLogInstruction();
 #endif
 	va_list msg;
-	va_start(msg,format);
-	vsprintf(buf,format,msg);
+	va_start(msg, format);
+	vsprintf(buf, format, msg);
 	va_end(msg);
-	strcat(buf,"\n");
+	strcat(buf, "\n");
 
 	throw(buf);
 }

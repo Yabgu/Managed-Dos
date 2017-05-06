@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* $Id: callback.h,v 1.26 2009-08-23 17:24:54 c2woody Exp $ */
+ /* $Id: callback.h,v 1.26 2009-08-23 17:24:54 c2woody Exp $ */
 
 #ifndef DOSBOX_CALLBACK_H
 #define DOSBOX_CALLBACK_H
@@ -25,30 +25,32 @@
 #include "mem.h"
 #endif 
 
-typedef unsigned (*CallBack_Handler)(void);
+typedef unsigned(*CallBack_Handler)(void);
 extern CallBack_Handler CallBack_Handlers[];
 
-enum { CB_RETN,CB_RETF,CB_RETF8,CB_IRET,CB_IRETD,CB_IRET_STI,CB_IRET_EOI_PIC1,
-		CB_IRQ0,CB_IRQ1,CB_IRQ9,CB_IRQ12,CB_IRQ12_RET,CB_IRQ6_PCJR,CB_MOUSE,
-		CB_INT29,CB_INT16,CB_HOOKABLE,CB_TDE_IRET,CB_IPXESR,CB_IPXESR_RET,
-		CB_INT21 };
+enum {
+	CB_RETN, CB_RETF, CB_RETF8, CB_IRET, CB_IRETD, CB_IRET_STI, CB_IRET_EOI_PIC1,
+	CB_IRQ0, CB_IRQ1, CB_IRQ9, CB_IRQ12, CB_IRQ12_RET, CB_IRQ6_PCJR, CB_MOUSE,
+	CB_INT29, CB_INT16, CB_HOOKABLE, CB_TDE_IRET, CB_IPXESR, CB_IPXESR_RET,
+	CB_INT21
+};
 
 #define CB_MAX		128
 #define CB_SIZE		32
 #define CB_SEG		0xF000
 #define CB_SOFFSET	0x1000
 
-enum {	
-	CBRET_NONE=0,CBRET_STOP=1
+enum {
+	CBRET_NONE = 0, CBRET_STOP = 1
 };
 
 extern System::Byte lastint;
 
 static INLINE RealPt CALLBACK_RealPointer(unsigned callback) {
-	return RealMake(CB_SEG,(System::UInt16)(CB_SOFFSET+callback*CB_SIZE));
+	return RealMake(CB_SEG, (System::UInt16)(CB_SOFFSET + callback*CB_SIZE));
 }
 static INLINE PhysPt CALLBACK_PhysPointer(unsigned callback) {
-	return PhysMake(CB_SEG,(System::UInt16)(CB_SOFFSET+callback*CB_SIZE));
+	return PhysMake(CB_SEG, (System::UInt16)(CB_SOFFSET + callback*CB_SIZE));
 }
 
 static INLINE PhysPt CALLBACK_GetBase(void) {
@@ -61,10 +63,10 @@ void CALLBACK_Idle(void);
 
 
 void CALLBACK_RunRealInt(System::Byte intnum);
-void CALLBACK_RunRealFar(System::UInt16 seg,System::UInt16 off);
+void CALLBACK_RunRealFar(System::UInt16 seg, System::UInt16 off);
 
-bool CALLBACK_Setup(unsigned callback,CallBack_Handler handler,unsigned type,const char* descr);
-unsigned CALLBACK_Setup(unsigned callback,CallBack_Handler handler,unsigned type,PhysPt addr,const char* descr);
+bool CALLBACK_Setup(unsigned callback, CallBack_Handler handler, unsigned type, const char* descr);
+unsigned CALLBACK_Setup(unsigned callback, CallBack_Handler handler, unsigned type, PhysPt addr, const char* descr);
 
 const char* CALLBACK_GetDescription(unsigned callback);
 bool CALLBACK_Free(unsigned callback);
@@ -76,28 +78,28 @@ void CALLBACK_SIF(bool val);
 extern unsigned call_priv_io;
 
 
-class CALLBACK_HandlerObject{
+class CALLBACK_HandlerObject {
 private:
 	bool installed;
 	unsigned m_callback;
-	enum {NONE,SETUP,SETUPAT} m_type;
-    struct {	
+	enum { NONE, SETUP, SETUPAT } m_type;
+	struct {
 		RealPt old_vector;
 		System::Byte interrupt;
 		bool installed;
 	} vectorhandler;
 public:
-	CALLBACK_HandlerObject():installed(false),m_type(NONE) {
-		vectorhandler.installed=false;
+	CALLBACK_HandlerObject() :installed(false), m_type(NONE) {
+		vectorhandler.installed = false;
 	}
 	~CALLBACK_HandlerObject();
 
 	//Install and allocate a callback.
-	void Install(CallBack_Handler handler,unsigned type,const char* description);
-	void Install(CallBack_Handler handler,unsigned type,PhysPt addr,const char* description);
+	void Install(CallBack_Handler handler, unsigned type, const char* description);
+	void Install(CallBack_Handler handler, unsigned type, PhysPt addr, const char* description);
 
 	//Only allocate a callback number
-	void Allocate(CallBack_Handler handler,const char* description=0);
+	void Allocate(CallBack_Handler handler, const char* description = 0);
 	System::UInt16 Get_callback() {
 		return (System::UInt16)m_callback;
 	}

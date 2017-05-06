@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* $Id: video.h,v 1.26 2009-05-27 09:15:41 qbix79 Exp $ */
+ /* $Id: video.h,v 1.26 2009-05-27 09:15:41 qbix79 Exp $ */
 
 #ifndef DOSBOX_VIDEO_H
 #define DOSBOX_VIDEO_H
@@ -29,7 +29,7 @@ typedef enum {
 	GFX_CallBackRedraw
 } GFX_CallBackFunctions_t;
 
-typedef void (*GFX_CallBack_t)( GFX_CallBackFunctions_t function );
+typedef void(*GFX_CallBack_t)(GFX_CallBackFunctions_t function);
 
 struct GFX_PalEntry {
 	System::Byte r;
@@ -56,17 +56,17 @@ struct GFX_PalEntry {
 #define GFX_CAN_RANDOM	0x4000		//If the interface can also do random access surface
 
 void GFX_Events(void);
-void GFX_SetPalette(unsigned start,unsigned count,GFX_PalEntry * entries);
+void GFX_SetPalette(unsigned start, unsigned count, GFX_PalEntry * entries);
 unsigned GFX_GetBestMode(unsigned flags);
-unsigned GFX_GetRGB(System::Byte red,System::Byte green,System::Byte blue);
-unsigned GFX_SetSize(unsigned width,unsigned height,unsigned flags,double scalex,double scaley,GFX_CallBack_t cb);
+unsigned GFX_GetRGB(System::Byte red, System::Byte green, System::Byte blue);
+unsigned GFX_SetSize(unsigned width, unsigned height, unsigned flags, double scalex, double scaley, GFX_CallBack_t cb);
 
 void GFX_ResetScreen(void);
 void GFX_Start(void);
 void GFX_Stop(void);
 void GFX_SwitchFullScreen(void);
-bool GFX_StartUpdate(System::Byte * & pixels,unsigned & pitch);
-void GFX_EndUpdate( const System::UInt16 *changedLines );
+bool GFX_StartUpdate(System::Byte * & pixels, unsigned & pitch);
+void GFX_EndUpdate(const System::UInt16 *changedLines);
 void GFX_GetSize(int &width, int &height, bool &fullscreen);
 void GFX_LosingFocus(void);
 

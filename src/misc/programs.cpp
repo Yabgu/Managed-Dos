@@ -239,7 +239,7 @@ bool Program::SetEnv(const char * entry, const char * new_string) {
 		std::string bigentry(entry);
 		for (std::string::iterator it = bigentry.begin(); it != bigentry.end(); ++it) *it = toupper(*it);
 		sprintf(env_string, "%s=%s", bigentry.c_str(), new_string);
-		//		sprintf(env_string,"%s=%s",entry,new_string); //oldcode
+		// sprintf(env_string,"%s=%s",entry,new_string); //oldcode
 		MEM_BlockWrite(env_write, env_string, (unsigned)(strlen(env_string) + 1));
 		env_write += (PhysPt)(strlen(env_string) + 1);
 	}

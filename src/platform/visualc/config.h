@@ -4,10 +4,10 @@
 #define C_DEBUG 0
 
 /* Define to 1 to enable screenshots, requires libpng */
-#define C_SSHOT 1
+#define C_SSHOT 0
 
 /* Define to 1 to use opengl display output support */
-#define C_OPENGL 1
+#define C_OPENGL 0
 
 /* Define to 1 to enable internal modem support, requires SDL_net */
 #define C_MODEM 1
@@ -47,7 +47,7 @@
 #define ENVIRON_LINKED 1
 
 /* Define to 1 if you have the <ddraw.h> header file. */
-#define HAVE_DDRAW_H 1
+#define HAVE_DDRAW_H 0
 
 /* Define to 1 if you want serial passthrough support (Win32 only). */
 #define C_DIRECTSERIAL 1

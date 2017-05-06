@@ -18,6 +18,7 @@
 
 /* $Id: hardware.cpp,v 1.23 2009-10-11 18:09:22 qbix79 Exp $ */
 
+#include <msclr/auto_handle.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,7 +33,6 @@
 #include "cross.h"
 
 #if (C_SSHOT)
-#include <png.h>
 #include "../libs/zmbv/zmbv.cpp"
 #endif
 
@@ -81,13 +81,18 @@ static struct {
 #endif
 } capture;
 
-FILE * OpenCaptureFile(const char * type,const char * ext) {
-	if(capturedir.empty()) {
+
+System::String^ OpenCaptureFilePath(System::String^ type, System::String^ ext) {
+	if (capturedir.empty()) {
 		LOG_MSG("Please specify a capture directory");
-		return 0;
+		return nullptr;
 	}
 
-	unsigned last=0;
+	System::String^ captureManagedDir = gcnew System::String(capturedir.c_str());
+
+	System::String^ RunningProgramManaged = gcnew System::String(RunningProgram);
+
+	unsigned last = 0;
 	char file_start[16];
 	dir_information * dir;
 	/* Find a filename to open */
@@ -95,31 +100,61 @@ FILE * OpenCaptureFile(const char * type,const char * ext) {
 	if (!dir) {
 		//Try creating it first
 		Cross::CreateDir(capturedir);
-		dir=open_directory(capturedir.c_str());
-		if(!dir) {
-		
-			LOG_MSG("Can't open dir %s for capturing %s",capturedir.c_str(),type);
+		dir = open_directory(capturedir.c_str());
+		if (!dir) {
+
+			LOG_MSG("Can't open dir %s for capturing %s", capturedir.c_str(), type);
+			return nullptr;
+		}
+	}
+
+	System::String^ searchPattern = System::String::Format("{0}_*{1}", RunningProgramManaged, ext);
+	
+	int num = System::Linq::Enumerable::Count( System::IO::Directory::EnumerateFiles(captureManagedDir, searchPattern));
+	
+	
+	return System::String::Format("{0}{1}{2}_{3}{4}", captureManagedDir, CROSS_FILESPLIT, RunningProgramManaged, last, ext);
+}
+
+FILE * OpenCaptureFile(const char * type,const char * ext) {
+	if (capturedir.empty()) {
+		LOG_MSG("Please specify a capture directory");
+		return 0;
+	}
+
+	unsigned last = 0;
+	char file_start[16];
+	dir_information * dir;
+	/* Find a filename to open */
+	dir = open_directory(capturedir.c_str());
+	if (!dir) {
+		//Try creating it first
+		Cross::CreateDir(capturedir);
+		dir = open_directory(capturedir.c_str());
+		if (!dir) {
+
+			LOG_MSG("Can't open dir %s for capturing %s", capturedir.c_str(), type);
 			return 0;
 		}
 	}
-	strcpy(file_start,RunningProgram);
+	strcpy(file_start, RunningProgram);
 	lowcase(file_start);
-	strcat(file_start,"_");
+	strcat(file_start, "_");
 	bool is_directory;
 	char tempname[CROSS_LEN];
-	bool testRead = read_directory_first(dir, tempname, is_directory );
-	for ( ; testRead; testRead = read_directory_next(dir, tempname, is_directory) ) {
-		char * test=strstr(tempname,ext);
-		if (!test || strlen(test)!=strlen(ext)) 
+	bool testRead = read_directory_first(dir, tempname, is_directory);
+	for (; testRead; testRead = read_directory_next(dir, tempname, is_directory)) {
+		char * test = strstr(tempname, ext);
+		if (!test || strlen(test) != strlen(ext))
 			continue;
-		*test=0;
-		if (strncasecmp(tempname,file_start,strlen(file_start))!=0) continue;
-		unsigned num=atoi(&tempname[strlen(file_start)]);
-		if (num>=last) last=num+1;
+		*test = 0;
+		if (strncasecmp(tempname, file_start, strlen(file_start)) != 0) continue;
+		unsigned num = atoi(&tempname[strlen(file_start)]);
+		if (num >= last) last = num + 1;
 	}
-	close_directory( dir );
+	close_directory(dir);
 	char file_name[CROSS_LEN];
-	sprintf(file_name,"%s%c%s%03d%s",capturedir.c_str(),CROSS_FILESPLIT,file_start,last,ext);
+	sprintf(file_name, "%s%c%s%03d%s", capturedir.c_str(), CROSS_FILESPLIT, file_start, last, ext);
 	/* Open the actual file */
 	FILE * handle=fopen(file_name,"wb");
 	if (handle) {
@@ -311,146 +346,53 @@ static void CAPTURE_VideoEvent(bool pressed) {
 
 void CAPTURE_AddImage(unsigned width, unsigned height, unsigned bpp, unsigned pitch, unsigned flags, float fps, System::Byte * data, System::Byte * pal) {
 #if (C_SSHOT)
-	unsigned i;
-	System::Byte doubleRow[SCALER_MAXWIDTH*4];
-	unsigned countWidth = width;
-
-	if (flags & CAPTURE_FLAG_DBLH)
-		height *= 2;
-	if (flags & CAPTURE_FLAG_DBLW)
-		width *= 2;
-
 	if (height > SCALER_MAXHEIGHT)
 		return;
 	if (width > SCALER_MAXWIDTH)
 		return;
-	
+
+	int stride = ((width + 1) / 2) * 2;
+	System::IntPtr dataPtr(data);
+
 	if (CaptureState & CAPTURE_IMAGE) {
-		png_structp png_ptr;
-		png_infop info_ptr;
-		png_color palette[256];
+		System::Drawing::Bitmap^ bitmap;
+
+		switch (bpp) {
+		case 8:
+			bitmap = gcnew System::Drawing::Bitmap(width, height, stride, System::Drawing::Imaging::PixelFormat::Format8bppIndexed, dataPtr);
+			if (pal != nullptr) {
+				auto palette = bitmap->Palette->Entries;
+				for (int i = 0; i < 256; i++) {
+					palette[i] = System::Drawing::Color::FromArgb(255, pal[i * 4 + 0], pal[i * 4 + 1], pal[i * 4 + 2]);
+				}
+			}
+			break;
+		case 15:
+			bitmap = gcnew System::Drawing::Bitmap(width, height, ((width + 1) / 2) * 2, System::Drawing::Imaging::PixelFormat::Format16bppArgb1555, dataPtr);
+			break;
+		case 16:
+			bitmap = gcnew System::Drawing::Bitmap(width, height, ((width + 1) / 2) * 2, System::Drawing::Imaging::PixelFormat::Format16bppRgb565, dataPtr);
+			break;
+		case 32:
+			bitmap = gcnew System::Drawing::Bitmap(width, height, ((width + 1) / 2) * 2, System::Drawing::Imaging::PixelFormat::Format32bppArgb, dataPtr);
+			break;
+		}
 
 		CaptureState &= ~CAPTURE_IMAGE;
-		/* Open the actual file */
-		FILE * fp=OpenCaptureFile("Screenshot",".png");
-		if (!fp) goto skip_shot;
-		/* First try to alloacte the png structures */
-		png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,NULL, NULL);
-		if (!png_ptr) goto skip_shot;
-		info_ptr = png_create_info_struct(png_ptr);
-		if (!info_ptr) {
-			png_destroy_write_struct(&png_ptr,(png_infopp)NULL);
-			goto skip_shot;
+		try
+		{
+			auto fileName = OpenCaptureFilePath("Screenshot", ".png");
+
+			/* Open the actual file */
+			msclr::auto_handle<System::IO::FileStream> fs(gcnew System::IO::FileStream(fileName, System::IO::FileMode::CreateNew));
+			bitmap->Save(fs, System::Drawing::Imaging::ImageFormat::Png);
 		}
-	
-		/* Finalize the initing of png library */
-		png_init_io(png_ptr, fp);
-		png_set_compression_level(png_ptr,Z_BEST_COMPRESSION);
-		
-		/* set other zlib parameters */
-		png_set_compression_mem_level(png_ptr, 8);
-		png_set_compression_strategy(png_ptr,Z_DEFAULT_STRATEGY);
-		png_set_compression_window_bits(png_ptr, 15);
-		png_set_compression_method(png_ptr, 8);
-		png_set_compression_buffer_size(png_ptr, 8192);
-	
-		if (bpp==8) {
-			png_set_IHDR(png_ptr, info_ptr, width, height,
-				8, PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
-				PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-			for (i=0;i<256;i++) {
-				palette[i].red=pal[i*4+0];
-				palette[i].green=pal[i*4+1];
-				palette[i].blue=pal[i*4+2];
-			}
-			png_set_PLTE(png_ptr, info_ptr, palette,256);
-		} else {
-			png_set_bgr( png_ptr );
-			png_set_IHDR(png_ptr, info_ptr, width, height,
-				8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-				PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+		catch (System::Exception^ ex)
+		{
 		}
-		png_write_info(png_ptr, info_ptr);
-		for (i=0;i<height;i++) {
-			void *rowPointer;
-			void *srcLine;
-			if (flags & CAPTURE_FLAG_DBLH)
-				srcLine=(data+(i >> 1)*pitch);
-			else
-				srcLine=(data+(i >> 0)*pitch);
-			rowPointer=srcLine;
-			switch (bpp) {
-			case 8:
-				if (flags & CAPTURE_FLAG_DBLW) {
-   					for (unsigned x=0;x<countWidth;x++)
-						doubleRow[x*2+0] =
-						doubleRow[x*2+1] = ((System::Byte *)srcLine)[x];
-					rowPointer = doubleRow;
-				}
-				break;
-			case 15:
-				if (flags & CAPTURE_FLAG_DBLW) {
-					for (unsigned x=0;x<countWidth;x++) {
-						unsigned pixel = ((System::UInt16 *)srcLine)[x];
-						doubleRow[x*6+0] = doubleRow[x*6+3] = ((pixel& 0x001f) * 0x21) >>  2;
-						doubleRow[x*6+1] = doubleRow[x*6+4] = ((pixel& 0x03e0) * 0x21) >>  7;
-						doubleRow[x*6+2] = doubleRow[x*6+5] = ((pixel& 0x7c00) * 0x21) >>  12;
-					}
-				} else {
-					for (unsigned x=0;x<countWidth;x++) {
-						unsigned pixel = ((System::UInt16 *)srcLine)[x];
-						doubleRow[x*3+0] = ((pixel& 0x001f) * 0x21) >>  2;
-						doubleRow[x*3+1] = ((pixel& 0x03e0) * 0x21) >>  7;
-						doubleRow[x*3+2] = ((pixel& 0x7c00) * 0x21) >>  12;
-					}
-				}
-				rowPointer = doubleRow;
-				break;
-			case 16:
-				if (flags & CAPTURE_FLAG_DBLW) {
-					for (unsigned x=0;x<countWidth;x++) {
-						unsigned pixel = ((System::UInt16 *)srcLine)[x];
-						doubleRow[x*6+0] = doubleRow[x*6+3] = ((pixel& 0x001f) * 0x21) >> 2;
-						doubleRow[x*6+1] = doubleRow[x*6+4] = ((pixel& 0x07e0) * 0x41) >> 9;
-						doubleRow[x*6+2] = doubleRow[x*6+5] = ((pixel& 0xf800) * 0x21) >> 13;
-					}
-				} else {
-					for (unsigned x=0;x<countWidth;x++) {
-						unsigned pixel = ((System::UInt16 *)srcLine)[x];
-						doubleRow[x*3+0] = ((pixel& 0x001f) * 0x21) >>  2;
-						doubleRow[x*3+1] = ((pixel& 0x07e0) * 0x41) >>  9;
-						doubleRow[x*3+2] = ((pixel& 0xf800) * 0x21) >>  13;
-					}
-				}
-				rowPointer = doubleRow;
-				break;
-			case 32:
-				if (flags & CAPTURE_FLAG_DBLW) {
-					for (unsigned x=0;x<countWidth;x++) {
-						doubleRow[x*6+0] = doubleRow[x*6+3] = ((System::Byte *)srcLine)[x*4+0];
-						doubleRow[x*6+1] = doubleRow[x*6+4] = ((System::Byte *)srcLine)[x*4+1];
-						doubleRow[x*6+2] = doubleRow[x*6+5] = ((System::Byte *)srcLine)[x*4+2];
-					}
-				} else {
-					for (unsigned x=0;x<countWidth;x++) {
-						doubleRow[x*3+0] = ((System::Byte *)srcLine)[x*4+0];
-						doubleRow[x*3+1] = ((System::Byte *)srcLine)[x*4+1];
-						doubleRow[x*3+2] = ((System::Byte *)srcLine)[x*4+2];
-					}
-				}
-				rowPointer = doubleRow;
-				break;
-			}
-			png_write_row(png_ptr, (png_bytep)rowPointer);
-		}
-		/* Finish writing */
-		png_write_end(png_ptr, 0);
-		/*Destroy PNG structs*/
-		png_destroy_write_struct(&png_ptr, &info_ptr);
-		/*close file*/
-		fclose(fp);
 	}
 skip_shot:
+#if 0
 	if (CaptureState & CAPTURE_VIDEO) {
 		zmbv_format_t format;
 		/* Disable capturing if any of the test fails */
@@ -494,7 +436,7 @@ skip_shot:
 			capture.video.height = height;
 			capture.video.bpp = bpp;
 			capture.video.fps = fps;
-			for (i=0;i<AVI_HEADER_SIZE;i++)
+			for (int i=0;i<AVI_HEADER_SIZE;i++)
 				fputc(0,capture.video.handle);
 			capture.video.frames = 0;
 			capture.video.written = 0;
@@ -508,7 +450,7 @@ skip_shot:
 		if (!capture.video.codec->PrepareCompressFrame( codecFlags, format, (char *)pal, capture.video.buf, capture.video.bufSize))
 			goto skip_video;
 
-		for (i=0;i<height;i++) {
+		for (int i=0;i<height;i++) {
 			void * rowPointer;
 			if (flags & CAPTURE_FLAG_DBLW) {
 				void *srcLine;
@@ -563,6 +505,7 @@ skip_shot:
 		/* Everything went okay, set flag again for next frame */
 		CaptureState |= CAPTURE_VIDEO;
 	}
+#endif
 skip_video:
 #endif
 	return;

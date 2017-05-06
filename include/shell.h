@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* $Id: shell.h,v 1.28 2009-07-03 19:36:57 qbix79 Exp $ */
+ /* $Id: shell.h,v 1.28 2009-07-03 19:36:57 qbix79 Exp $ */
 
 #ifndef DOSBOX_SHELL_H
 #define DOSBOX_SHELL_H
@@ -36,7 +36,7 @@
 #define CMD_MAXCMDS 20
 #define CMD_OLDSIZE 4096
 extern unsigned call_shellstop;
-/* first_shell is used to add and delete stuff from the shell env 
+/* first_shell is used to add and delete stuff from the shell env
  * by "external" programs. (config) */
 extern Program * first_shell;
 
@@ -44,7 +44,7 @@ class DOS_Shell;
 
 class BatchFile {
 public:
-	BatchFile(DOS_Shell * host,char const* const resolved_name,char const* const entered_name, char const * const cmd_line);
+	BatchFile(DOS_Shell * host, char const* const resolved_name, char const* const entered_name, char const * const cmd_line);
 	virtual ~BatchFile();
 	virtual bool ReadLine(char * line);
 	bool Goto(char * where);
@@ -66,7 +66,7 @@ private:
 
 	char *completion_start;
 	System::UInt16 completion_index;
-	
+
 public:
 
 	DOS_Shell();
@@ -75,16 +75,16 @@ public:
 	void RunInternal(void); //for command /C
 /* A load of subfunctions */
 	void ParseLine(char * line);
-	unsigned GetRedirection(char *s, char **ifn, char **ofn,bool * append);
+	unsigned GetRedirection(char *s, char **ifn, char **ofn, bool * append);
 	void InputCommand(char * line);
 	void ShowPrompt();
 	void DoCommand(char * cmd);
-	bool Execute(char * name,char * args);
+	bool Execute(char * name, char * args);
 	/* Checks if it matches a hardware-property */
-	bool CheckConfig(char* cmd_in,char*line);
-/* Some internal used functions */
+	bool CheckConfig(char* cmd_in, char*line);
+	/* Some internal used functions */
 	char * Which(char * name);
-/* Some supported commands */
+	/* Some supported commands */
 	void CMD_HELP(char * args);
 	void CMD_CLS(char * args);
 	void CMD_COPY(char * args);
@@ -129,12 +129,12 @@ struct SHELL_Cmd {
 /* Object to manage lines in the autoexec.bat The lines get removed from
  * the file if the object gets destroyed. The environment is updated
  * as well if the line set a a variable */
-class AutoexecObject{
+class AutoexecObject {
 private:
 	bool installed;
 	std::string buf;
 public:
-	AutoexecObject():installed(false){ };
+	AutoexecObject() :installed(false) { };
 	void Install(std::string const &in);
 	void InstallBefore(std::string const &in);
 	~AutoexecObject();

@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* $Id: support.h,v 1.18 2009-05-27 09:15:41 qbix79 Exp $ */
+ /* $Id: support.h,v 1.18 2009-05-27 09:15:41 qbix79 Exp $ */
 
 #ifndef DOSBOX_SUPPORT_H
 #define DOSBOX_SUPPORT_H
@@ -39,14 +39,14 @@
 #include <strings.h>
 #endif
 
-void strreplace(char * str,char o,char n);
+void strreplace(char * str, char o, char n);
 char *ltrim(char *str);
 char *rtrim(char *str);
 char *trim(char * str);
 char * upcase(char * str);
 char * lowcase(char * str);
 
-bool ScanCMDBool(char * cmd,char const * const check);
+bool ScanCMDBool(char * cmd, char const * const check);
 char * ScanCMDRemain(char * cmd);
 char * StripWord(char *&cmd);
 bool IsDecWord(char * word);

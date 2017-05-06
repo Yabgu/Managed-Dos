@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* $Id: messages.cpp,v 1.23 2009-06-17 08:52:35 qbix79 Exp $ */
+ /* $Id: messages.cpp,v 1.23 2009-06-17 08:52:35 qbix79 Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,17 +28,16 @@
 #include "control.h"
 #include <list>
 #include <string>
+
 using namespace std;
-
-
 
 #define LINE_IN_MAXLEN 2048
 
 struct MessageBlock {
 	string name;
 	string val;
-	MessageBlock(const char* _name, const char* _val):
-	name(_name),val(_val){}
+	MessageBlock(const char* _name, const char* _val) :
+		name(_name), val(_val) {}
 };
 
 static list<MessageBlock> Lang;
@@ -46,76 +45,78 @@ typedef list<MessageBlock>::iterator itmb;
 
 void MSG_Add(const char * _name, const char* _val) {
 	/* Find the message */
-	for(itmb tel=Lang.begin();tel!=Lang.end();tel++) {
-		if((*tel).name==_name) { 
-//			LOG_MSG("double entry for %s",_name); //Message file might be loaded before default text messages
+	for (itmb tel = Lang.begin(); tel != Lang.end(); tel++) {
+		if ((*tel).name == _name) {
+			// LOG_MSG("double entry for %s",_name); //Message file might be loaded before default text messages
 			return;
 		}
 	}
 	/* if the message doesn't exist add it */
-	Lang.push_back(MessageBlock(_name,_val));
+	Lang.push_back(MessageBlock(_name, _val));
 }
 
 void MSG_Replace(const char * _name, const char* _val) {
 	/* Find the message */
-	for(itmb tel=Lang.begin();tel!=Lang.end();tel++) {
-		if((*tel).name==_name) { 
+	for (itmb tel = Lang.begin(); tel != Lang.end(); tel++) {
+		if ((*tel).name == _name) {
 			Lang.erase(tel);
 			break;
 		}
 	}
 	/* Even if the message doesn't exist add it */
-	Lang.push_back(MessageBlock(_name,_val));
+	Lang.push_back(MessageBlock(_name, _val));
 }
 
 static void LoadMessageFile(const char * fname) {
 	if (!fname) return;
-	if(*fname=='\0') return;//empty string=no languagefile
-	FILE * mfile=fopen(fname,"rt");
+	if (*fname == '\0') return;//empty string=no languagefile
+	FILE * mfile = fopen(fname, "rt");
 	/* This should never happen and since other modules depend on this use a normal printf */
 	if (!mfile) {
-		E_Exit("MSG:Can't load messages: %s",fname);
+		E_Exit("MSG:Can't load messages: %s", fname);
 	}
 	char linein[LINE_IN_MAXLEN];
 	char name[LINE_IN_MAXLEN];
-	char string[LINE_IN_MAXLEN*10];
+	char string[LINE_IN_MAXLEN * 10];
 	/* Start out with empty strings */
-	name[0]=0;string[0]=0;
-	while(fgets(linein, LINE_IN_MAXLEN, mfile)!=0) {
+	name[0] = 0; string[0] = 0;
+	while (fgets(linein, LINE_IN_MAXLEN, mfile) != 0) {
 		/* Parse the read line */
 		/* First remove characters 10 and 13 from the line */
-		char * parser=linein;
-		char * writer=linein;
+		char * parser = linein;
+		char * writer = linein;
 		while (*parser) {
-			if (*parser!=10 && *parser!=13) {
-				*writer++=*parser;
+			if (*parser != 10 && *parser != 13) {
+				*writer++ = *parser;
 			}
 			*parser++;
 		}
-		*writer=0;
+		*writer = 0;
 		/* New string name */
-		if (linein[0]==':') {
-			string[0]=0;
-			strcpy(name,linein+1);
-		/* End of string marker */
-		} else if (linein[0]=='.') {
+		if (linein[0] == ':') {
+			string[0] = 0;
+			strcpy(name, linein + 1);
+			/* End of string marker */
+		}
+		else if (linein[0] == '.') {
 			/* Replace/Add the string to the internal langaugefile */
 			/* Remove last newline (marker is \n.\n) */
 			size_t ll = strlen(string);
-			if(ll && string[ll - 1] == '\n') string[ll - 1] = 0; //Second if should not be needed, but better be safe.
-			MSG_Replace(name,string);
-		} else {
-		/* Normal string to be added */
-			strcat(string,linein);
-			strcat(string,"\n");
+			if (ll && string[ll - 1] == '\n') string[ll - 1] = 0; //Second if should not be needed, but better be safe.
+			MSG_Replace(name, string);
+		}
+		else {
+			/* Normal string to be added */
+			strcat(string, linein);
+			strcat(string, "\n");
 		}
 	}
 	fclose(mfile);
 }
 
 const char * MSG_Get(char const * msg) {
-	for(itmb tel=Lang.begin();tel!=Lang.end();tel++){	
-		if((*tel).name==msg)
+	for (itmb tel = Lang.begin(); tel != Lang.end(); tel++) {
+		if ((*tel).name == msg)
 		{
 			return  (*tel).val.c_str();
 		}
@@ -125,20 +126,21 @@ const char * MSG_Get(char const * msg) {
 
 
 void MSG_Write(const char * location) {
-	FILE* out=fopen(location,"w+t");
-	if(out==NULL) return;//maybe an error?
-	for(itmb tel=Lang.begin();tel!=Lang.end();tel++){
-		fprintf(out,":%s\n%s\n.\n",(*tel).name.c_str(),(*tel).val.c_str());
+	FILE* out = fopen(location, "w+t");
+	if (out == NULL) return;//maybe an error?
+	for (itmb tel = Lang.begin(); tel != Lang.end(); tel++) {
+		fprintf(out, ":%s\n%s\n.\n", (*tel).name.c_str(), (*tel).val.c_str());
 	}
 	fclose(out);
 }
 
 void MSG_Init(Section_prop * section) {
 	std::string file_name;
-	if (control->cmdline->FindString("-lang",file_name,true)) {
+	if (control->cmdline->FindString("-lang", file_name, true)) {
 		LoadMessageFile(file_name.c_str());
-	} else {
+	}
+	else {
 		Prop_path* pathprop = section->Get_path("language");
-		if(pathprop) LoadMessageFile(pathprop->realpath.c_str());
+		if (pathprop) LoadMessageFile(pathprop->realpath.c_str());
 	}
 }

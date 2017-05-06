@@ -31,24 +31,6 @@ static unsigned call_10;
 static bool warned_ff=false;
 
 static unsigned INT10_Handler(void) {
-#if 0
-	switch (reg_ah) {
-	case 0x02:
-	case 0x03:
-	case 0x09:
-	case 0xc:
-	case 0xd:
-	case 0x0e:
-	case 0x10:
-	case 0x4f:
-
-		break;
-	default:
-		LOG(LOG_INT10,LOG_NORMAL)("Function AX:%04X , BX %04X DX %04X",reg_ax,reg_bx,reg_dx);
-		break;
-	}
-#endif
-
 	switch (reg_ah) {
 	case 0x00:								/* Set VideoMode */
 		INT10_SetVideoMode(reg_al);
